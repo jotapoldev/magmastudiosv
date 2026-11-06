@@ -255,6 +255,7 @@ void main(){
   const negocio = document.querySelector("[data-negocio]");
   const preview = document.querySelector("[data-preview]");
   const status = document.querySelector("[data-status]");
+  const correo = document.querySelector("[data-correo]");
   const lista = (xs) => xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} y ${xs[xs.length - 1]}`;
   const mensaje = () => {
     const sel = chips.filter((c) => c.checked).map((c) => c.value);
@@ -266,6 +267,7 @@ void main(){
   };
   const actualizar = () => {
     preview.textContent = mensaje();
+    correo.href = `mailto:servicioalcliente@magmastudiosv.com?subject=${encodeURIComponent("Proyecto con Magma Studio")}&body=${encodeURIComponent(mensaje())}`;
     status.textContent = "";
   };
   chips.forEach((c) => c.addEventListener("change", actualizar));
@@ -276,7 +278,7 @@ void main(){
     const m = mensaje();
     try {
       await navigator.clipboard.writeText(m);
-      status.textContent = "Mensaje copiado. Ábrelo en Instagram y pégalo en el chat.";
+      status.textContent = "Mensaje copiado. Pégalo en tu correo o en Instagram.";
     } catch {
       const r = document.createRange();
       r.selectNodeContents(preview);

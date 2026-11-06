@@ -634,6 +634,8 @@ a { color: inherit; }
   font-size: 1rem;
 }
 .contacto__actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+.contacto__correo { margin-top: 16px; font-size: 0.95rem; overflow-wrap: anywhere; }
+.contacto__correo a { color: var(--colada); font-weight: 600; }
 .brief__status { margin-top: 12px; min-height: 1.55em; font-size: 0.95rem; color: var(--colada); font-weight: 600; }
 
 /* Footer */
