@@ -545,6 +545,39 @@ a { color: inherit; }
 .caso__pasos p { margin-top: 8px; color: #E6D6CF; max-width: 46ch; }
 .caso__cta { margin-top: clamp(40px, 6vw, 64px); }
 
+/* Lab */
+.lab { background: var(--magma); color: var(--ceniza); padding-block: clamp(88px, 12vw, 160px); }
+.lab__label {
+  display: inline-block; margin-bottom: 20px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid rgba(243, 236, 232, 0.4); font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.lab__intro { margin-top: 24px; max-width: 52ch; font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem); color: #E6D6CF; }
+.lab__grid { margin-top: clamp(48px, 7vw, 88px); display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.lab__card {
+  display: grid; gap: 10px; align-content: end; min-height: 360px; padding: clamp(22px, 3vw, 36px);
+  border-radius: var(--radius); background: var(--basalto); color: var(--ceniza); text-decoration: none;
+  position: relative; overflow: hidden; isolation: isolate;
+}
+.lab__preview {
+  position: absolute; inset: 0; z-index: -1; opacity: 0.55;
+  background-image: radial-gradient(circle, var(--ceniza) 1.1px, transparent 1.6px);
+  background-size: 7px 7px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 62% 38%, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 72%);
+  mask-image: radial-gradient(ellipse 60% 55% at 62% 38%, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 72%);
+  transition: opacity 0.4s var(--ease-out);
+}
+.lab__meta { font-family: var(--mono); font-size: 0.8rem; color: var(--lava); letter-spacing: 0.06em; text-transform: uppercase; }
+.lab__name { font-family: var(--display); font-weight: 900; font-stretch: 120%; text-transform: uppercase; font-size: clamp(2rem, 1.2rem + 3vw, 3.6rem); line-height: 0.92; }
+.lab__desc { max-width: 40ch; color: var(--texto-suave); }
+.lab__go { margin-top: 8px; font-weight: 600; color: var(--lava); }
+.lab__card--pronto { background: transparent; border: 1px dashed rgba(243, 236, 232, 0.3); }
+.lab__card--pronto .lab__meta { color: var(--texto-suave); }
+@media (hover: hover) and (pointer: fine) {
+  .lab__card:not(.lab__card--pronto):hover .lab__preview { opacity: 0.9; }
+  .lab__card:not(.lab__card--pronto):hover .lab__go { text-decoration: underline; }
+}
+@media (max-width: 860px) { .lab__grid { grid-template-columns: 1fr; } .lab__card { min-height: 300px; } }
+
 /* Proceso */
 .proceso { background: var(--ceniza); color: var(--basalto); padding-block: clamp(88px, 12vw, 160px); }
 .pasos {

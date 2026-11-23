@@ -49,6 +49,7 @@ body { font-family: var(--texto); font-size: 15px; line-height: 1.55; }
 }
 .barra { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .barra img { height: 26px; width: auto; display: block; }
+.barra a { pointer-events: auto; }
 .barra .eyebrow { color: var(--ceniza-2); }
 a:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
 
@@ -108,7 +109,7 @@ h2 span { color: var(--lava); }
   <div class="aviso" id="aviso" hidden>Este navegador no puede mostrar WebGL. El volcán necesita aceleración gráfica activada.</div>
   <div class="capa">
     <div class="barra">
-      <img src="logo.svg" alt="Magma Studio" width="134" height="26">
+      <a href="/"><img src="/lab/ilamatepec/logo.svg" alt="Magma Studio, volver al inicio" width="134" height="26"></a>
       <span class="eyebrow">Proyecto conceptual</span>
     </div>
     <div></div>
@@ -175,7 +176,10 @@ h2 span { color: var(--lava); }
   }
   renderer.setClearColor(0x000000, 1);
 
-  fetch("alto.json").then(r => r.json()).then(d => {
+  fetch("/lab/ilamatepec/alto.json").then(r => {
+    if (!r.ok) throw new Error("alto.json " + r.status);
+    return r.json();
+  }).then(d => {
     const bin = atob(d.datos);
     const bytes = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -183,7 +187,12 @@ h2 span { color: var(--lava); }
     const metros = new Float32Array(q.length);
     for (let i = 0; i < q.length; i++) metros[i] = d.min + (q[i] / 65535) * (d.max - d.min);
     iniciar(metros, d.lado || 9500);
-  }).catch(() => { document.getElementById("aviso").hidden = false; });
+  }).catch(err => {
+    console.error(err);
+    const aviso = document.getElementById("aviso");
+    aviso.textContent = "No se pudo cargar el relieve del volcán. Recargá la página.";
+    aviso.hidden = false;
+  });
 
   function iniciar(alturas, ladoMetros) {
     let min = Infinity, max = -Infinity, cumbre = 0;
