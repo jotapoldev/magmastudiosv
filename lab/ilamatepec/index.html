@@ -50,6 +50,9 @@ body { font-family: var(--texto); font-size: 15px; line-height: 1.55; }
 .barra { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
 .barra img { height: 26px; width: auto; display: block; }
 .barra a { pointer-events: auto; }
+.vista .capa, .vista .heroe::after, .vista main { display: none; }
+.vista .heroe { height: 100vh; min-height: 0; margin-top: 0; }
+.vista #lienzo { cursor: default; }
 .barra .eyebrow { color: var(--ceniza-2); }
 a:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
 
@@ -163,6 +166,7 @@ h2 span { color: var(--lava); }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function () {
+  if (new URLSearchParams(location.search).has("vista")) document.documentElement.classList.add("vista");
   const N = 256;
   const canvas = document.getElementById("lienzo");
   const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
