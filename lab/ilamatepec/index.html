@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ilamatepec · Magma Lab</title>
+<meta name="description" content="Magma Lab 01: el volcán de Santa Ana con relieve real, dibujado en vivo en el navegador. Proyecto conceptual de Magma Studio.">
+<meta property="og:title" content="Ilamatepec · Magma Lab">
+<meta property="og:description" content="El volcán de Santa Ana con relieve real, dibujado en vivo. Proyecto conceptual de Magma Studio.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#161210">
+<style>body { margin: 0; } img { max-width: 100%; }</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,200..900&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: héroe WebGL a sangre con el relieve real del volcán; texto en las esquinas como instrumento de medición; debajo, cómo está hecho */
+:root {
+  --basalto: #161210;
+  --roca: #221a17;
+  --linea: rgba(243, 236, 232, .14);
+  --ceniza: #f3ece8;
+  --ceniza-2: #a89a93;
+  --lava: #f24b04;
+  --ambar: #ffb547;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --texto: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--basalto); color: var(--ceniza); }
+body { font-family: var(--texto); font-size: 15px; line-height: 1.55; }
+
+.heroe {
+  position: relative; height: min(88vh, 860px); min-height: 560px; overflow: hidden;
+  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+}
+#lienzo { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: pan-y; }
+.heroe::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%; pointer-events: none;
+  background: linear-gradient(to top, var(--basalto) 28%, rgba(22, 18, 16, .82) 58%, rgba(22, 18, 16, 0));
+}
+.capa {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  display: grid; grid-template-rows: auto 1fr auto;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 20px); padding-bottom: 22px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+.barra { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.barra img { height: 26px; width: auto; display: block; }
+.barra .eyebrow { color: var(--ceniza-2); }
+a:focus-visible { outline: 2px solid var(--ambar); outline-offset: 2px; }
+
+.pie { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.titulo { display: grid; gap: 10px; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--lava); }
+h1 {
+  font-family: var(--display); font-stretch: 125%; font-weight: 900; text-transform: uppercase;
+  font-size: clamp(40px, 9vw, 128px); line-height: .86; margin: 0; letter-spacing: -.015em;
+  text-shadow: 0 2px 24px rgba(22, 18, 16, .65);
+}
+.datos { display: flex; flex-wrap: wrap; gap: 6px 22px; font-family: var(--mono); font-size: 12px; color: var(--ceniza-2); font-variant-numeric: tabular-nums; }
+.datos b { color: var(--ceniza); font-weight: 500; }
+.instruccion { max-width: 34ch; font-size: 14px; color: var(--ceniza-2); text-align: right; text-shadow: 0 1px 12px rgba(22, 18, 16, .8); }
+.instruccion strong { color: var(--ceniza); font-weight: 600; }
+.con-dedo { display: none; }
+@media (hover: none) { .con-mouse { display: none; } .con-dedo { display: inline; } }
+@media (max-width: 560px) {
+  h1 { font-stretch: 100%; font-size: 12.4vw; }
+  .heroe { height: min(86vh, 780px); }
+  .heroe::after { height: 58%; background: linear-gradient(to top, var(--basalto) 46%, rgba(22, 18, 16, .85) 70%, rgba(22, 18, 16, 0)); }
+  .pie { gap: 12px; }
+}
+.aviso { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--ceniza-2); }
+
+.envoltura {
+  max-width: 1180px; margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px));
+  padding-block: 64px 72px;
+}
+.intro { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 40px; align-items: start; border-bottom: 1px solid var(--linea); padding-bottom: 48px; }
+@media (max-width: 760px) { .intro { grid-template-columns: 1fr; gap: 20px; } .instruccion { text-align: left; } }
+h2 { font-family: var(--display); font-stretch: 110%; font-weight: 800; font-size: clamp(28px, 4vw, 44px); line-height: 1.02; margin: 0; text-wrap: balance; }
+h2 span { color: var(--lava); }
+.intro p { margin: 0; color: var(--ceniza-2); max-width: 60ch; font-size: 16px; }
+.intro p + p { margin-top: 14px; }
+.pasos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; padding-top: 40px; }
+@media (max-width: 760px) { .pasos { grid-template-columns: 1fr; } }
+.paso { display: grid; gap: 8px; align-content: start; }
+.paso .medida { font-family: var(--mono); font-size: 12px; color: var(--lava); letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+.paso h3 { font-family: var(--display); font-stretch: 112%; font-weight: 800; font-size: 20px; margin: 0; }
+.paso p { margin: 0; color: var(--ceniza-2); font-size: 14.5px; }
+.cierre { margin-top: 56px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; border-top: 1px solid var(--linea); padding-top: 28px; }
+.cierre p { margin: 0; font-family: var(--display); font-stretch: 120%; font-weight: 800; font-size: clamp(20px, 3vw, 30px); }
+.cierre a {
+  font: 600 14px/1 var(--texto); color: var(--basalto); background: var(--lava); text-decoration: none;
+  padding: 14px 20px; border-radius: 999px;
+}
+.cierre a:hover { background: var(--ambar); }
+.firma { margin-top: 18px; font-family: var(--mono); font-size: 11px; color: var(--ceniza-2); letter-spacing: .04em; }
+</style>
+</head>
+<body>
+
+<section class="heroe" aria-label="Volcán Ilamatepec dibujado en tiempo real">
+  <canvas id="lienzo" aria-label="Relieve 3D del volcán de Santa Ana. Mover el puntero calienta la roca; un clic provoca una erupción."></canvas>
+  <div class="aviso" id="aviso" hidden>Este navegador no puede mostrar WebGL. El volcán necesita aceleración gráfica activada.</div>
+  <div class="capa">
+    <div class="barra">
+      <img src="logo.svg" alt="Magma Studio" width="134" height="26">
+      <span class="eyebrow">Proyecto conceptual</span>
+    </div>
+    <div></div>
+    <div class="pie">
+      <div class="titulo">
+        <span class="eyebrow">Magma Lab · 01</span>
+        <h1>Ilamatepec</h1>
+        <div class="datos">
+          <span><b>2.381 m</b> s. n. m.</span>
+          <span><b>13°51′19″N</b> 89°37′43″O</span>
+          <span><b id="puntos">65.536</b> puntos de relieve real</span>
+        </div>
+      </div>
+      <p class="instruccion"><span class="con-mouse"><strong>Mové el puntero</strong> para calentar la roca. <strong>Clic</strong> para que haga erupción.</span><span class="con-dedo"><strong>Tocá la montaña</strong> para que haga erupción.</span></p>
+    </div>
+  </div>
+</section>
+
+<main class="envoltura">
+  <div class="intro">
+    <h2>El volcán de Santa Ana, medido metro a metro y <span>dibujado en vivo</span>.</h2>
+    <div>
+      <p>Una pieza conceptual de Magma Studio. El relieve no es una ilustración: son datos de elevación reales del Ilamatepec y sus alrededores, unos 9,5 km por lado, que el navegador convierte en una montaña 3D sesenta veces por segundo.</p>
+      <p>Encima corre un filtro que la convierte en puntos, como una impresión de periódico. Es la misma técnica de las webs que ganan premios, hecha con algo nuestro.</p>
+    </div>
+  </div>
+  <div class="pasos">
+    <div class="paso">
+      <span class="medida">Terrain Tiles · zoom 14</span>
+      <h3>Relieve real</h3>
+      <p>Datos abiertos de elevación, reducidos a una malla de 256 × 256. La altura está exagerada 1,5 veces para que la forma se lea a primera vista.</p>
+    </div>
+    <div class="paso">
+      <span class="medida">Dither Bayer 8 × 8</span>
+      <h3>Luz hecha de puntos</h3>
+      <p>Cada punto se enciende o no según la luz que le llega a esa parte de la montaña. El calor del puntero los tiñe de crema a ámbar y a lava.</p>
+    </div>
+    <div class="paso">
+      <span class="medida">WebGL · sin plugins</span>
+      <h3>Hecho para la web</h3>
+      <p>Funciona en el navegador, en computadora y en teléfono. Si alguien prefiere menos movimiento, la montaña se queda quieta.</p>
+    </div>
+  </div>
+  <div class="cierre">
+    <p>¿Tu marca necesita algo que no se parezca a nada?</p>
+    <a href="https://magmastudiosv.com" target="_blank" rel="noreferrer">Hablemos en magmastudiosv.com</a>
+  </div>
+  <p class="firma">Proyecto conceptual · Magma Studio · Datos de elevación: AWS Terrain Tiles (Terrarium)</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  const N = 256;
+  const canvas = document.getElementById("lienzo");
+  const quieto = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false });
+  } catch (e) {
+    document.getElementById("aviso").hidden = false;
+    return;
+  }
+  renderer.setClearColor(0x000000, 1);
+
+  fetch("alto.json").then(r => r.json()).then(d => {
+    const bin = atob(d.datos);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const q = new Uint16Array(bytes.buffer);
+    const metros = new Float32Array(q.length);
+    for (let i = 0; i < q.length; i++) metros[i] = d.min + (q[i] / 65535) * (d.max - d.min);
+    iniciar(metros, d.lado || 9500);
+  }).catch(() => { document.getElementById("aviso").hidden = false; });
+
+  function iniciar(alturas, ladoMetros) {
+    let min = Infinity, max = -Infinity, cumbre = 0;
+    for (let i = 0; i < alturas.length; i++) {
+      const v = alturas[i];
+      if (v < min) min = v;
+      if (v > max) { max = v; cumbre = i; }
+    }
+    const LADO = 10, ESCALA = LADO * (max - min) / ladoMetros * 1.5;
+    const geo = new THREE.PlaneGeometry(LADO, LADO, N - 1, N - 1);
+    geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position;
+    const elev = new Float32Array(N * N);
+    for (let i = 0; i < N * N; i++) {
+      const h = (alturas[i] - min) / (max - min);
+      elev[i] = h;
+      pos.setY(i, h * ESCALA);
+    }
+    geo.setAttribute("elev", new THREE.BufferAttribute(elev, 1));
+    geo.computeVertexNormals();
+
+    const cx = pos.getX(cumbre), cz = pos.getZ(cumbre);
+    const centro = new THREE.Vector3(cx, ESCALA * 0.45, cz);
+
+    const terreno = new THREE.ShaderMaterial({
+      uniforms: { uLuz: { value: new THREE.Vector3(-0.55, 0.7, -0.45).normalize() }, uCentro: { value: new THREE.Vector2(cx, cz) } },
+      vertexShader: `
+        attribute float elev;
+        varying float vElev; varying vec3 vNormal; varying vec2 vXZ;
+        void main() {
+          vElev = elev; vNormal = normal; vXZ = position.xz;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: `
+        uniform vec3 uLuz; uniform vec2 uCentro;
+        varying float vElev; varying vec3 vNormal; varying vec2 vXZ;
+        void main() {
+          vec3 n = normalize(vNormal);
+          float lum = 0.08 + 0.92 * max(dot(n, uLuz), 0.0);
+          lum = pow(lum, 1.15) * (0.55 + 0.6 * vElev);
+          float borde = 1.0 - smoothstep(3.4, 4.9, length(vXZ - uCentro));
+          float e = vElev * 255.0;
+          gl_FragColor = vec4(clamp(lum, 0.0, 1.0), floor(e) / 255.0, fract(e), borde);
+        }`
+    });
+    const escena = new THREE.Scene();
+    escena.add(new THREE.Mesh(geo, terreno));
+    const camara = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+
+    const rt = new THREE.WebGLRenderTarget(2, 2, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, depthBuffer: true });
+
+    const post = new THREE.ShaderMaterial({
+      uniforms: {
+        tEscena: { value: rt.texture },
+        uRes: { value: new THREE.Vector2(1, 1) }, uTiempo: { value: 0 },
+        uPuntero: { value: new THREE.Vector3(-999, -999, 0) }, uClic: { value: new THREE.Vector3(-999, -999, -99) },
+        uPixel: { value: 3 }, uMovimiento: { value: quieto ? 0 : 1 }
+      },
+      vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+      fragmentShader: `
+        uniform sampler2D tEscena;
+        uniform vec2 uRes; uniform float uTiempo;
+        uniform vec3 uPuntero; uniform vec3 uClic; uniform float uPixel; uniform float uMovimiento;
+        varying vec2 vUv;
+        const vec3 BASALTO = vec3(0.086, 0.071, 0.063);
+        const vec3 CENIZA = vec3(0.953, 0.925, 0.910);
+        const vec3 LAVA = vec3(0.949, 0.294, 0.016);
+        const vec3 AMBAR = vec3(1.0, 0.71, 0.28);
+        float bayer2(vec2 a) { a = floor(a); return fract(dot(a, vec2(0.5, a.y * 0.75))); }
+        float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+        float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+        float calor(vec2 px, float e) {
+          float d = distance(px, uPuntero.xy);
+          float r = 150.0 * uPixel / 3.0;
+          float h = uPuntero.z * exp(-(d * d) / (r * r));
+          float t = uTiempo - uClic.z;
+          if (t > 0.0 && t < 2.6) {
+            float R = t * 520.0 * uPixel / 3.0;
+            float dc = distance(px, uClic.xy);
+            h += exp(-pow((dc - R) / (40.0 * uPixel / 3.0), 2.0)) * (1.0 - t / 2.6) * 1.4;
+            h += exp(-(dc * dc) / pow(90.0 * uPixel / 3.0, 2.0)) * max(0.0, 1.0 - t * 1.4) * 1.2;
+          }
+          float pulso = 0.55 + 0.45 * sin(uTiempo * 1.6 * uMovimiento);
+          h += smoothstep(0.86, 0.99, e) * (0.35 + 0.35 * pulso);
+          return clamp(h, 0.0, 1.0);
+        }
+        vec3 tinta(float h) { return h < 0.5 ? mix(CENIZA, AMBAR, h * 2.0) : mix(AMBAR, LAVA, (h - 0.5) * 2.0); }
+        float elevDe(vec4 s) { return s.g + s.b / 255.0; }
+        void main() {
+          vec2 px = vUv * uRes;
+          vec2 q = (floor(px / uPixel) + 0.5) * uPixel;
+          vec4 s = texture2D(tEscena, q / uRes);
+          float e = elevDe(s);
+          float h = calor(q, e);
+          float lum = s.r * s.a + h * 0.45 * s.a;
+          float on = step(bayer8(px / uPixel) + 0.02, lum);
+          vec3 col = mix(BASALTO, tinta(h), on * step(0.01, s.a));
+          gl_FragColor = vec4(col, 1.0);
+        }`
+    });
+    const escenaPost = new THREE.Scene();
+    escenaPost.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), post));
+    const camPost = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+    let dpr = 1, ancho = 1, alto = 1;
+    function medir() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const r = canvas.getBoundingClientRect();
+      ancho = Math.max(1, r.width); alto = Math.max(1, r.height);
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(ancho, alto, false);
+      const w = Math.round(ancho * dpr), h = Math.round(alto * dpr);
+      rt.setSize(w, h);
+      post.uniforms.uRes.value.set(w, h);
+      post.uniforms.uPixel.value = Math.round(3 * dpr);
+      camara.aspect = ancho / alto;
+      camara.updateProjectionMatrix();
+    }
+    medir();
+    new ResizeObserver(medir).observe(canvas);
+
+    let objetivo = { x: 0, y: 0 }, mirada = { x: 0, y: 0 }, encima = 0, calorActual = 0;
+    canvas.addEventListener("pointermove", e => {
+      const r = canvas.getBoundingClientRect();
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      objetivo.x = (x / r.width) * 2 - 1;
+      objetivo.y = (y / r.height) * 2 - 1;
+      post.uniforms.uPuntero.value.x = x * dpr;
+      post.uniforms.uPuntero.value.y = (r.height - y) * dpr;
+      encima = 1;
+    });
+    canvas.addEventListener("pointerleave", () => { encima = 0; objetivo.x = 0; objetivo.y = 0; });
+    canvas.addEventListener("pointerdown", e => {
+      const r = canvas.getBoundingClientRect();
+      post.uniforms.uClic.value.set((e.clientX - r.left) * dpr, (r.height - (e.clientY - r.top)) * dpr, reloj.getElapsedTime());
+    });
+
+    const reloj = new THREE.Clock();
+    let angulo = 0.6, previo = 0;
+    function cuadro() {
+      const t = reloj.getElapsedTime();
+      const dt = Math.min(t - previo, 0.05);
+      previo = t;
+      if (!quieto) angulo += dt * 0.06;
+      mirada.x += (objetivo.x - mirada.x) * 0.04;
+      mirada.y += (objetivo.y - mirada.y) * 0.04;
+      calorActual += (encima - calorActual) * 0.08;
+      post.uniforms.uPuntero.value.z = calorActual;
+      post.uniforms.uTiempo.value = t;
+
+      const aspecto = ancho / alto;
+      const radio = aspecto < 0.75 ? 18 : aspecto < 1.2 ? 14 : 11.5;
+      const bajar = aspecto < 0.75 ? 1.9 : aspecto < 1.2 ? 1.0 : 0.35;
+      const theta = angulo + mirada.x * 0.35;
+      const phi = 0.62 - mirada.y * 0.12;
+      camara.position.set(
+        centro.x + radio * Math.cos(phi) * Math.sin(theta),
+        centro.y + radio * Math.sin(phi),
+        centro.z + radio * Math.cos(phi) * Math.cos(theta)
+      );
+      camara.lookAt(centro.x, centro.y - bajar, centro.z);
+
+      renderer.setRenderTarget(rt);
+      renderer.setClearColor(0x000000, 0);
+      renderer.clear();
+      renderer.render(escena, camara);
+      renderer.setRenderTarget(null);
+      renderer.render(escenaPost, camPost);
+      requestAnimationFrame(cuadro);
+    }
+    requestAnimationFrame(cuadro);
+  }
+})();
+</script>
+</body>
+</html>
