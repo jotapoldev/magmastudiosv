@@ -545,6 +545,102 @@ a { color: inherit; }
 .caso__pasos p { margin-top: 8px; color: #E6D6CF; max-width: 46ch; }
 .caso__cta { margin-top: clamp(40px, 6vw, 64px); }
 
+/* Físico */
+.fisico { background: var(--ceniza); color: var(--basalto); padding-block: clamp(88px, 12vw, 160px); }
+.fisico .section-sub { color: var(--texto-suave-claro); }
+.fisico__oferta {
+  margin-top: clamp(56px, 8vw, 104px);
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+.fisico__hero { margin: 0; position: sticky; top: calc(var(--nav-h) + 24px); border-radius: 14px; overflow: hidden; aspect-ratio: 4 / 5; background: var(--ceniza-2); }
+.fisico__hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fisico__servicios { display: grid; }
+.fisico__servicios li {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  column-gap: 12px;
+  border-top: 2px solid var(--basalto);
+  padding-block: 22px 26px;
+}
+.fisico__servicios li:last-child { border-bottom: 2px solid var(--basalto); }
+.fisico__num { grid-row: span 2; padding-top: 6px; font-family: var(--mono); font-size: 0.85rem; color: var(--colada); }
+.fisico__servicios h3 { font-family: var(--display); font-weight: 700; font-stretch: 106%; font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem); }
+.fisico__servicios p { margin-top: 8px; max-width: 48ch; color: var(--texto-suave-claro); font-size: 1rem; }
+.fisico__tecnicas { margin-top: clamp(80px, 11vw, 136px); }
+.fisico__subtitulo { font-family: var(--display); font-weight: 900; font-stretch: 120%; font-size: clamp(1.6rem, 1.1rem + 2vw, 2.6rem); line-height: 1; letter-spacing: -0.02em; }
+.fisico__tecnicas-grid {
+  margin-top: clamp(28px, 4vw, 44px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(12px, 1.6vw, 20px);
+}
+.fisico__tecnicas-grid li {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 22px;
+  border-radius: 14px;
+  background: var(--basalto);
+  color: var(--ceniza);
+}
+.fisico__tecnicas-grid h4 { font-family: var(--display); font-weight: 900; font-stretch: 115%; font-size: 1.5rem; color: var(--lava); }
+.fisico__tecnicas-grid p { margin-top: 10px; color: #E6D6CF; font-size: 0.98rem; }
+.fisico__tecnicas-grid .fisico__ideal { margin-top: auto; padding-top: 18px; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.02em; color: var(--texto-suave); }
+.fisico__caso { margin-top: clamp(96px, 13vw, 168px); }
+.fisico__titulo {
+  font-family: var(--display);
+  font-weight: 900;
+  font-stretch: 120%;
+  font-size: clamp(1.8rem, 1.1rem + 3vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+.fisico__intro { margin-top: 20px; max-width: 52ch; font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem); color: var(--texto-suave-claro); }
+.fisico__galeria {
+  margin-top: clamp(40px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(12px, 1.6vw, 20px);
+}
+.fisico__foto, .fisico__arte { margin: 0; overflow: hidden; border-radius: 14px; aspect-ratio: 4 / 5; }
+.fisico__foto { background: var(--ceniza-2); }
+.fisico__foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fisico__arte {
+  position: relative;
+  background: #1B1F4A;
+  display: grid;
+  place-items: center;
+  padding: 12%;
+}
+.fisico__arte img { width: 100%; height: 100%; object-fit: contain; }
+.fisico__arte figcaption {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: rgba(243, 236, 232, 0.6);
+}
+@media (max-width: 1024px) {
+  .fisico__tecnicas-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 860px) {
+  .fisico__oferta { grid-template-columns: 1fr; }
+  .fisico__hero { position: static; aspect-ratio: 4 / 3; }
+  .fisico__galeria { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .fisico__hero { aspect-ratio: 1 / 1; }
+  .fisico__servicios li { grid-template-columns: 2.25rem 1fr; padding-block: 18px 22px; }
+  .fisico__tecnicas-grid { grid-template-columns: 1fr; }
+  .fisico__tecnicas-grid li { padding: 20px 18px; }
+  .fisico__galeria { gap: 10px; }
+  .fisico__arte figcaption { left: 10px; bottom: 8px; font-size: 0.68rem; }
+}
+
 /* Lab */
 .lab { background: var(--magma); color: var(--ceniza); padding-block: clamp(88px, 12vw, 160px); }
 .lab__label {
