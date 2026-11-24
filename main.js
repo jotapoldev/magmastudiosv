@@ -272,6 +272,10 @@ void main(){
   };
   chips.forEach((c) => c.addEventListener("change", actualizar));
   negocio.addEventListener("input", actualizar);
+  document.querySelectorAll("[data-preselect]").forEach((a) => a.addEventListener("click", () => {
+    const chip = chips.find((c) => c.value === a.dataset.preselect);
+    if (chip && !chip.checked) { chip.checked = true; actualizar(); }
+  }));
   actualizar();
 
   document.querySelector("[data-copy]").addEventListener("click", async () => {
